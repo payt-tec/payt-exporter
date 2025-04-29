@@ -6,6 +6,7 @@ let config = {
     METRICS_PORT: 3000,
     STUB_STATUS_URL: '/metrics',
     STUB_STATUS_PORT: 8888,
+    TOKEN: "CHANGEME"
 };
 
 try {
@@ -16,6 +17,6 @@ try {
     console.warn('Could not read config.json, using defaults:', error.message);
 }
 
-const { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT } = config;
+const { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN } = config;
 
-export { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT };
+export { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN };
