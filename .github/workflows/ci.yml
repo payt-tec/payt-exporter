@@ -41,6 +41,6 @@ jobs:
                 push: true
                 tags: |
                     payt-tec/payt-nginx-exporter:${{ github.ref_name }}
-                    ${{ github.ref_name == 'master' && 'your-dockerhub-username/payt-nginx-exporter:latest' || '' }}
+                    ${{ github.ref_name == 'master' && 'payt-tec/payt-nginx-exporter:latest' || '' }}
                 cache-from: type=local,src=/tmp/.buildx-cache
                 cache-to: type=local,dest=/tmp/.buildx-cache
