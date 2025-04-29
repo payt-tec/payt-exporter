@@ -40,7 +40,7 @@ jobs:
                 file: Dockerfile
                 push: true
                 tags: |
-                    your-dockerhub-username/payt-nginx-exporter:${{ github.ref_name }}
+                    payt-tec/payt-nginx-exporter:${{ github.ref_name }}
                     ${{ github.ref_name == 'master' && 'your-dockerhub-username/payt-nginx-exporter:latest' || '' }}
                 cache-from: type=local,src=/tmp/.buildx-cache
                 cache-to: type=local,dest=/tmp/.buildx-cache
