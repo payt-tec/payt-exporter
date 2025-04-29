@@ -1,4 +1,5 @@
 import { listContainersByImage, getContainerIPAddress } from "./docker";
+import { STUB_STATUS_URL, STUB_STATUS_PORT } from "./config";
 const hostname = require("os").hostname();
 
 export async function getNginxContainers(image: string) {
@@ -10,7 +11,7 @@ export async function getStubStatusFromContainers(containers: { id: string, name
 
   for (const container of containers) {
     const ip = await getContainerIPAddress(container.id);
-    const url = `http://${ip}:8888/metrics`;
+    const url = `http://${ip}:${STUB_STATUS_PORT}${STUB_STATUS_URL}`;
 
     try {
       const res = await fetch(url, { timeout: 2000 });

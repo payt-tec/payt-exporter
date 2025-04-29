@@ -1,19 +1,15 @@
 import { getNginxContainers, getStubStatusFromContainers } from "./nginx";
 import { serveMetrics } from "./metrics";
+import { IMAGE_NAME, METRICS_PORT } from "./config";
 
 async function main() {
-  const imageName = "ghcr.io/payt-tec/laravel-fpm:"; // change as needed
-
-  
-//   console.log(`Found ${containers.length} containers using image ${imageName}`);
-
   const scrapeAndServe = async () => {
-    const containers = await getNginxContainers(imageName);
+    const containers = await getNginxContainers(IMAGE_NAME);
     const data = await getStubStatusFromContainers(containers);
     return data;
   };
 
-  serveMetrics(scrapeAndServe, 3000);
+  serveMetrics(scrapeAndServe, METRICS_PORT);
 }
 
 main();

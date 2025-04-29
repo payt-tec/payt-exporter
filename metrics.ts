@@ -1,6 +1,8 @@
-export function serveMetrics(scraper: () => Promise<string>, port: number) {
+import { METRICS_PORT } from "./config";
+
+export function serveMetrics(scraper: () => Promise<string>) {
     const server = Bun.serve({
-      port,
+      port: METRICS_PORT,
       async fetch(req) {
         const url = new URL(req.url);
   
@@ -11,10 +13,10 @@ export function serveMetrics(scraper: () => Promise<string>, port: number) {
           });
         }
   
-        return new Response("Not found", { status: 404 });
+        return new Response("Oops", { status: 404 });
       },
     });
   
-    console.log(`🚀 Prometheus metrics available at http://localhost:${port}/metrics`);
+    console.log(`🚀 Prometheus metrics available at http://localhost:${METRICS_PORT}/metrics`);
   }
   
