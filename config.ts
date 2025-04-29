@@ -17,9 +17,5 @@ try {
 }
 
 const { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT } = config;
-// const IMAGE_NAME = 'ghcr.io/payt-tec/laravel-fpm:';
-// const METRICS_PORT = 3000;
-// const STUB_STATUS_URL = '/metrics';
-// const STUB_STATUS_PORT = 8888;
 
 export { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT };
