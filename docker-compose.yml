@@ -1,13 +1,14 @@
 services:
   exporter:
-    image: oven/bun:1.2-alpine
+    image: payt-nginx-exporter
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: exporter
     restart: always
     volumes:
-      - ./:/app
+      - ./:/app:ro
+      - ./config.json:/app/config.json:ro
       - /var/run/docker.sock:/var/run/docker.sock
     hostname: ${HOSTNAME}
-    working_dir: /app
-    command: >
-      sh -c "bun run index.ts"
     network_mode: host
