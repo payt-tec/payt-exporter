@@ -10,6 +10,7 @@ let config = {
     MASTER_NODE: Bun.env.MASTER_NODE || 'http://localhost:3000',
     BEAT_INTERVAL: 30000,
     MODE: Bun.env.MODE || 'slave', // 'master' or 'slave'
+    HOSTNAME: Bun.env.HOSTNAME || require("os").hostname()
 };
 
 let nodeList = []
@@ -24,9 +25,7 @@ try {
     console.warn('Could not read config.json, using defaults:', error.message);
 }
 
-const { IMAGE_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, MASTER_NODE, BEAT_INTERVAL, MODE, LOCAL_PORT } = config;
-
-const HOSTNAME = require("os").hostname();
+const { IMAGE_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, MASTER_NODE, BEAT_INTERVAL, MODE, LOCAL_PORT, HOSTNAME } = config;
 
 export async function updateNodeList() {
     try {
