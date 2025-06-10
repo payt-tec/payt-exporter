@@ -1,6 +1,6 @@
 import { listContainersByImage, getContainerIPAddress } from "./docker";
-import { STUB_STATUS_URL, STUB_STATUS_PORT } from "./config";
-const hostname = require("os").hostname();
+import { STUB_STATUS_URL, STUB_STATUS_PORT, HOSTNAME } from "./config";
+
 
 export async function getNginxContainers(image: string) {
   return await listContainersByImage(image);
@@ -37,7 +37,7 @@ function parseStubStatus(text: string) {
 }
 
 function formatMetrics(name: string, metrics: any) {
-const labels = `{container="${name}",hostname="${hostname}"}`;
+const labels = `{container="${name}",hostname="${HOSTNAME}"}`;
   return `
 nginx_active_connections${labels} ${metrics.active}
 nginx_accepted_connections${labels} ${metrics.accepted}

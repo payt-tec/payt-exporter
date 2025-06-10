@@ -1,4 +1,5 @@
 const DOCKER_SOCKET = "/var/run/docker.sock";
+import { HOSTNAME } from "./config";
 
 async function dockerRequest(path: string): Promise<any> {
   const res = await fetch(`http://localhost${path}`, { unix: DOCKER_SOCKET });
@@ -10,8 +11,15 @@ async function dockerRequest(path: string): Promise<any> {
   return res.json();
 }
 
-export async function listContainersByImage(image: string) {
+export async function listContainersByImage(image: string|null) {
   const containers = await dockerRequest("/containers/json?all=false");
+
+  if (!image) {
+    return containers.map((c: any) => ({
+      id: c.Id,
+      name: c.Names[0].replace(/^\//, ""),
+    }));
+  }
 
   return containers
     .filter((c: any) => c.Image.includes(image))
@@ -26,4 +34,49 @@ export async function getContainerIPAddress(containerId: string): Promise<string
   const networks = info.NetworkSettings.Networks;
   const firstNet = Object.values(networks)[0] as any;
   return firstNet?.IPAddress || "";
+}
+
+async function getContainerStats(containerId: string): Promise<any> {
+  return await dockerRequest(`/containers/${containerId}/stats?stream=false`);
+}
+
+function formatMetrics(name: string, stats: any): string {
+  const labels = `{container="${name}",hostname="${HOSTNAME}"}`;
+  const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+  const systemDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+  const cpuPercent = systemDelta > 0 && cpuDelta > 0
+    ? (cpuDelta / systemDelta) * stats.cpu_stats.online_cpus * 100.0
+    : 0;
+
+  return [
+    // `docker_cpu_usage${labels} ${stats.cpu_stats.cpu_usage.total_usage}`,
+    `docker_cpu_percentage${labels} ${cpuPercent}`,
+    // `docker_memory_usage${labels} ${stats.memory_stats.usage}`,
+    // `docker_memory_limit${labels} ${stats.memory_stats.limit}`,
+    `docker_memory_percentage${labels} ${stats.memory_stats.usage / stats.memory_stats.limit * 100.0}`,
+    `docker_network_rx_bytes${labels} ${stats.networks.eth0.rx_bytes}`,
+    `docker_network_tx_bytes${labels} ${stats.networks.eth0.tx_bytes}`,
+    `docker_network_rx_packets${labels} ${stats.networks.eth0.rx_packets}`,
+    `docker_network_tx_packets${labels} ${stats.networks.eth0.tx_packets}`,
+    `docker_network_rx_errors${labels} ${stats.networks.eth0.rx_errors}`,
+    `docker_network_tx_errors${labels} ${stats.networks.eth0.tx_errors}`
+  ].join('\n');
+}
+
+export async function getDockerMetrics(): Promise<string> {
+  const containers = await listContainersByImage(null);
+
+  const statsList = await Promise.all(
+    containers.map(async (container) => {
+      try {
+        const stats = await getContainerStats(container.id);
+        return formatMetrics(container.name, stats);
+      } catch (err) {
+        console.error(`Failed to fetch stats for container ${container.name}:`, err);
+        return null;
+      }
+    })
+  );
+
+  return statsList.filter(Boolean).join("\n");
 }

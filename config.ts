@@ -1,12 +1,12 @@
 import fs from 'fs';
 
-
 let config = {
     IMAGE_NAME: 'ghcr.io/payt-tec/laravel-fpm:',
     METRICS_PORT: 3000,
     STUB_STATUS_URL: '/metrics',
     STUB_STATUS_PORT: 8888,
-    TOKEN: "CHANGEME"
+    TOKEN: "CHANGEME",
+    MASTER_NODE: "CHANGEME"
 };
 
 try {
@@ -17,6 +17,8 @@ try {
     console.warn('Could not read config.json, using defaults:', error.message);
 }
 
-const { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN } = config;
+const { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, MASTER_NODE } = config;
 
-export { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN };
+const HOSTNAME = require("os").hostname();
+
+export { IMAGE_NAME, METRICS_PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, HOSTNAME, MASTER_NODE };
