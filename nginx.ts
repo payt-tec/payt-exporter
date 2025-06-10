@@ -9,7 +9,7 @@ export async function getNginxContainers(image: string) {
 export async function getStubStatusFromContainers(containers: { id: string, name: string }[]) {
   const metrics: string[] = [];
 
-  for (const container of containers) {
+  await Promise.all(containers.map(async (container) => {
     const ip = await getContainerIPAddress(container.id);
     const url = `http://${ip}:${STUB_STATUS_PORT}${STUB_STATUS_URL}`;
 
@@ -22,7 +22,7 @@ export async function getStubStatusFromContainers(containers: { id: string, name
     } catch (err) {
       console.error(`Failed to fetch stub_status from ${container.name} at ${url}`);
     }
-  }
+  }));
 
   return metrics.join("\n");
 }

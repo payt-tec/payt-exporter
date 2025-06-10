@@ -1,8 +1,8 @@
-import { METRICS_PORT, TOKEN } from "./config";
+import { PORT, TOKEN } from "./config";
 
 export function serveMetrics(scraper: () => Promise<string>) {
     const server = Bun.serve({
-        port: METRICS_PORT,
+        port: PORT,
         async fetch(req) {
             const url = new URL(req.url);
 
@@ -25,5 +25,5 @@ export function serveMetrics(scraper: () => Promise<string>) {
         },
     });
 
-    console.log(`🚀 Prometheus metrics available at http://localhost:${METRICS_PORT}/metrics`);
+    console.log(`🚀 Prometheus metrics available at http://localhost:${PORT}/metrics`);
 }

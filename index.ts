@@ -1,15 +1,18 @@
 import { getNginxContainers, getStubStatusFromContainers } from "./nginx";
 import { serveMetrics } from "./metrics";
-import { IMAGE_NAME, METRICS_PORT } from "./config";
+import { IMAGE_NAME, MODE } from "./config";
 import { getDockerMetrics } from "./docker";
 import { getHostMetrics } from "./host";
+import { beatToMaster } from "./heartbeat";
+import { serveMaster } from "./master";
 
-async function main() {
+async function serveStatistics() {
   const scrapeAndServe = async () => {
-    const containers = await getNginxContainers(IMAGE_NAME);
-    const nginxData = await getStubStatusFromContainers(containers);
-    const dockerData = await getDockerMetrics();
-    const hostData = await getHostMetrics();
+    const [nginxData, dockerData, hostData] = await Promise.all([
+      getStubStatusFromContainers(await getNginxContainers(IMAGE_NAME)),
+      getDockerMetrics(),
+      getHostMetrics()
+    ]);
 
     return [nginxData, dockerData, hostData].filter(Boolean).join("\n");
   };
@@ -17,4 +20,9 @@ async function main() {
   serveMetrics(scrapeAndServe);
 }
 
-main();
+if (MODE === "master") {
+  serveMaster()
+} else {
+  serveStatistics();
+  beatToMaster();
+}
