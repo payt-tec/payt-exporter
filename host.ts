@@ -1,4 +1,5 @@
 import os from 'os';
+import { execSync } from 'child_process';
 
 export interface HostStatistics {
     hostname: string;
@@ -15,6 +16,37 @@ export interface HostStatistics {
         times: os.CpuInfo['times'];
     }[];
     networkInterfaces: Record<string, os.NetworkInterfaceInfo[] | undefined>;
+    disks: DiskStats[];
+}
+
+export interface DiskStats {
+    filesystem: string;
+    size: number;
+    used: number;
+    available: number;
+    mount: string;
+}
+
+function getDiskStatistics(): DiskStats[] {
+    try {
+        // Use 'df -k' for portable, parseable output (sizes in KB)
+        const output = execSync('df -k --output=source,size,used,avail,target /hostroot', { encoding: 'utf-8' });
+        const lines = output.trim().split('\n');
+        // Remove header
+        lines.shift();
+        return lines.map(line => {
+            const [filesystem, size, used, available, ...mountArr] = line.trim().split(/\s+/);
+            return {
+                filesystem,
+                size: parseInt(size, 10) * 1024,      // Convert KB to bytes
+                used: parseInt(used, 10) * 1024,
+                available: parseInt(available, 10) * 1024,
+                mount: mountArr.join(' '),
+            };
+        });
+    } catch (err) {
+        return [];
+    }
 }
 
 function getHostStatistics(): HostStatistics {
@@ -35,6 +67,7 @@ function getHostStatistics(): HostStatistics {
             times: cpu.times,
         })),
         networkInterfaces: os.networkInterfaces(),
+        disks: getDiskStatistics(),
     };
 }
 
@@ -53,6 +86,19 @@ function formatHostStatisticsForPrometheus(stats: HostStatistics): string {
             `host_load_average_${idx + 1}min{hostname="${stats.hostname}"} ${value}`
         ),
     ];
+
+    // Disk metrics
+    for (const disk of stats.disks) {
+        metrics.push(
+            `host_disk_total_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.size}`
+        );
+        metrics.push(
+            `host_disk_used_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.used}`
+        );
+        metrics.push(
+            `host_disk_available_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.available}`
+        );
+    }
 
     // CPU time totals per mode
     const cpuTimeTotals: Record<string, number> = {};
