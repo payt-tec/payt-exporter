@@ -29,21 +29,25 @@ export interface DiskStats {
 
 function getDiskStatistics(): DiskStats[] {
     try {
-        // Use 'df -k' for portable, parseable output (sizes in KB)
-        const output = execSync('df -k --output=source,size,used,avail,target /hostroot', { encoding: 'utf-8' });
+        // Use 'df' for default output (sizes in 1K blocks)
+        const output = execSync('df /hostroot', { encoding: 'utf-8' });
         const lines = output.trim().split('\n');
         // Remove header
         lines.shift();
         return lines.map(line => {
-            const [filesystem, size, used, available, ...mountArr] = line.trim().split(/\s+/);
+            // The columns are: filesystem, 1K-blocks, used, available, use%, mount
+            // Some filesystems may have spaces in the mount point, so handle that
+            const parts = line.trim().split(/\s+/);
+            if (parts.length < 6) return null as any;
+            const [filesystem, size, used, available, , ...mountArr] = parts;
             return {
                 filesystem,
-                size: parseInt(size, 10) * 1024,      // Convert KB to bytes
+                size: parseInt(size, 10) * 1024,      // Convert 1K blocks to bytes
                 used: parseInt(used, 10) * 1024,
                 available: parseInt(available, 10) * 1024,
                 mount: mountArr.join(' '),
             };
-        });
+        }).filter(Boolean);
     } catch (err) {
         return [];
     }
