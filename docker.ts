@@ -63,6 +63,45 @@ function formatMetrics(name: string, stats: any): string {
   ].join('\n');
 }
 
+async function listSwarmNodes(): Promise<any[]> {
+  try {
+    return await dockerRequest("/nodes");
+  } catch (err) {
+    console.error("Failed to fetch swarm nodes:", err);
+    return [];
+  }
+}
+
+async function listSwarmServices(): Promise<any[]> {
+  try {
+    return await dockerRequest("/services");
+  } catch (err) {
+    console.error("Failed to fetch swarm services:", err);
+    return [];
+  }
+}
+
+function formatSwarmNodeMetrics(nodes: any[]): string {
+  return nodes.map((node) => {
+    const labels = `{node_id="${node.ID}",hostname="${node.Description?.Hostname || ""}"}`;
+    return [
+      `docker_swarm_node_status${labels} ${node.Status?.State === "ready" ? 1 : 0}`,
+      `docker_swarm_node_availability${labels} ${node.Spec?.Availability === "active" ? 1 : 0}`,
+      `docker_swarm_node_manager${labels} ${node.ManagerStatus ? 1 : 0}`
+    ].join('\n');
+  }).join('\n');
+}
+
+function formatSwarmServiceMetrics(services: any[]): string {
+  return services.map((service) => {
+    const labels = `{service_id="${service.ID}",service_name="${service.Spec?.Name || ""}"}`;
+    return [
+      `docker_swarm_service_replicas${labels} ${service.ServiceStatus?.RunningTasks || 0}`,
+      `docker_swarm_service_desired_replicas${labels} ${service.Spec?.Mode?.Replicated?.Replicas || 0}`
+    ].join('\n');
+  }).join('\n');
+}
+
 export async function getDockerMetrics(): Promise<string> {
   const containers = await listContainersByImage(null);
 
@@ -78,5 +117,18 @@ export async function getDockerMetrics(): Promise<string> {
     })
   );
 
-  return statsList.filter(Boolean).join("\n");
+  // Swarm metrics
+  const [nodes, services] = await Promise.all([
+    listSwarmNodes(),
+    listSwarmServices()
+  ]);
+
+  const swarmNodeMetrics = formatSwarmNodeMetrics(nodes);
+  const swarmServiceMetrics = formatSwarmServiceMetrics(services);
+
+  return [
+    statsList.filter(Boolean).join("\n"),
+    swarmNodeMetrics,
+    swarmServiceMetrics
+  ].filter(Boolean).join("\n");
 }
