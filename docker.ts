@@ -49,18 +49,12 @@ function formatMetrics(name: string, stats: any) {
     : 0;
 
   return [
-    // `docker_cpu_usage${labels} ${stats.cpu_stats.cpu_usage.total_usage}`,
     `docker_cpu_percentage${labels} ${cpuPercent || 0}`,
-    // `docker_memory_usage${labels} ${stats.memory_stats.usage}`,
-    // `docker_memory_limit${labels} ${stats.memory_stats.limit}`,
     `docker_memory_percentage${labels} ${stats.memory_stats.usage / stats.memory_stats.limit * 100.0 || 0}`,
-    // `docker_network_rx_bytes${labels} ${stats.networks?.eth0?.rx_bytes || 0}`,
     `docker_network_tx_bytes${labels} ${stats.networks?.eth0?.tx_bytes || 0}`,
-    // `docker_network_rx_packets${labels} ${stats.networks?.eth0?.rx_packets || 0}`,
     `docker_network_tx_packets${labels} ${stats.networks?.eth0?.tx_packets || 0}`,
-    // `docker_network_rx_errors${labels} ${stats.networks?.eth0?.rx_errors || 0}`,
     `docker_network_tx_errors${labels} ${stats.networks?.eth0?.tx_errors || 0}`
-  ];
+  ].join('\n');
 }
 
 async function listSwarmNodes(): Promise<any[]> {
@@ -88,8 +82,8 @@ function formatSwarmNodeMetrics(nodes: any[]): string {
       `docker_swarm_node_status${labels} ${node.Status?.State === "ready" ? 1 : 0}`,
       `docker_swarm_node_availability${labels} ${node.Spec?.Availability === "active" ? 1 : 0}`,
       `docker_swarm_node_manager${labels} ${node.ManagerStatus ? 1 : 0}`
-    ];
-  });
+    ].join('\n');
+  }).join('\n');
 }
 
 function formatSwarmServiceMetrics(services: any[]): string {
@@ -98,8 +92,8 @@ function formatSwarmServiceMetrics(services: any[]): string {
     return [
       `docker_swarm_service_replicas${labels} ${service.ServiceStatus?.RunningTasks || 0}`,
       `docker_swarm_service_desired_replicas${labels} ${service.Spec?.Mode?.Replicated?.Replicas || 0}`
-    ];
-  });
+    ].join('\n');
+  }).join('\n');
 }
 
 export async function getDockerMetrics(): Promise<string> {
@@ -127,7 +121,7 @@ export async function getDockerMetrics(): Promise<string> {
   // const swarmServiceMetrics = formatSwarmServiceMetrics(services);
 
   return [
-    ...statsList,
+    statsList,
     // swarmNodeMetrics,
     // swarmServiceMetrics
   ].filter(Boolean).join("\n");
