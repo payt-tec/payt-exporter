@@ -38,13 +38,13 @@ function parseStubStatus(text: string) {
 
 function formatMetrics(name: string, metrics: any) {
 const labels = `{container="${name}",hostname="${HOSTNAME}"}`;
-  return `
-nginx_active_connections${labels} ${metrics.active}
-nginx_accepted_connections${labels} ${metrics.accepted}
-nginx_handled_connections${labels} ${metrics.handled}
-nginx_requests${labels} ${metrics.requests}
-nginx_reading${labels} ${metrics.reading}
-nginx_writing${labels} ${metrics.writing}
-nginx_waiting${labels} ${metrics.waiting}
-`.trim();
+  return [
+    `nginx_active_connections${labels} ${metrics.active}`,
+    // `nginx_accepted_connections${labels} ${metrics.accepted}`,
+    // `nginx_handled_connections${labels} ${metrics.handled}`,
+    // `nginx_requests${labels} ${metrics.requests}`,
+    `nginx_reading${labels} ${metrics.reading}`,
+    `nginx_writing${labels} ${metrics.writing}`,
+    `nginx_waiting${labels} ${metrics.waiting}`
+  ].join('\n');
 }

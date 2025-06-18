@@ -1,4 +1,4 @@
-import { PORT, TOKEN, nodeList, addNode, LOCAL_PORT } from "./config"
+import { PORT, TOKEN, nodeList, addNode, LOCAL_PORT, removeNode } from "./config"
 
 export async function serveMaster() {
     const server = Bun.serve({
@@ -40,12 +40,13 @@ export async function serveMaster() {
                             }
                         } catch (e) {
                             console.error(`Node down ${node}`);
+                            removeNode(node);
                         }
-                        return "";
+                        return null;
                     })
                 );
 
-                return new Response(metrics.join("\n"), { status: 200 });
+                return new Response(metrics.filter(Boolean).join("\n"), { status: 200 });
             }
         }
     })

@@ -54,11 +54,11 @@ function formatMetrics(name: string, stats: any): string {
     // `docker_memory_usage${labels} ${stats.memory_stats.usage}`,
     // `docker_memory_limit${labels} ${stats.memory_stats.limit}`,
     `docker_memory_percentage${labels} ${stats.memory_stats.usage / stats.memory_stats.limit * 100.0}`,
-    `docker_network_rx_bytes${labels} ${stats.networks?.eth0?.rx_bytes || 0}`,
+    // `docker_network_rx_bytes${labels} ${stats.networks?.eth0?.rx_bytes || 0}`,
     `docker_network_tx_bytes${labels} ${stats.networks?.eth0?.tx_bytes || 0}`,
-    `docker_network_rx_packets${labels} ${stats.networks?.eth0?.rx_packets || 0}`,
+    // `docker_network_rx_packets${labels} ${stats.networks?.eth0?.rx_packets || 0}`,
     `docker_network_tx_packets${labels} ${stats.networks?.eth0?.tx_packets || 0}`,
-    `docker_network_rx_errors${labels} ${stats.networks?.eth0?.rx_errors || 0}`,
+    // `docker_network_rx_errors${labels} ${stats.networks?.eth0?.rx_errors || 0}`,
     `docker_network_tx_errors${labels} ${stats.networks?.eth0?.tx_errors || 0}`
   ].join('\n');
 }

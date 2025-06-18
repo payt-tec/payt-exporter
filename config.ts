@@ -13,7 +13,7 @@ let config = {
     HOSTNAME: Bun.env.HOSTNAME || require("os").hostname()
 };
 
-let nodeList = []
+let nodeList: string[] = [];
 updateNodeList()
 
 try {
@@ -42,11 +42,21 @@ export async function updateNodeList() {
     }
 }
 
-export async function addNode(node) {
+export async function addNode(node : string) {
     if (!nodeList.includes(node)) {
         nodeList.push(node);
         fs.writeFileSync('nodes.json', JSON.stringify(nodeList, null, 2));
         console.log(`Node ${node} added to nodeList`);
+    }
+}
+
+export async function removeNode(node : string) {
+    const index = nodeList.indexOf(node);
+
+    if (index !== -1) {
+        nodeList.splice(index, 1);
+        fs.writeFileSync('nodes.json', JSON.stringify(nodeList, null, 2));
+        console.log(`Node ${node} removed from nodeList`);
     }
 }
 

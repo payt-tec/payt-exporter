@@ -161,7 +161,7 @@ function formatHostStatisticsForPrometheus(stats: HostStatistics): string {
         : 0;
 
     const metrics: string[] = [
-        `host_uptime_seconds{hostname="${stats.hostname}"} ${stats.uptime}`,
+        // `host_uptime_seconds{hostname="${stats.hostname}"} ${stats.uptime}`,
         `host_memory_total_bytes{hostname="${stats.hostname}"} ${stats.totalMemory}`,
         `host_memory_free_bytes{hostname="${stats.hostname}"} ${stats.freeMemory}`,
         `host_memory_used_bytes{hostname="${stats.hostname}"} ${stats.usedMemory}`,
@@ -175,9 +175,9 @@ function formatHostStatisticsForPrometheus(stats: HostStatistics): string {
         metrics.push(
             `host_disk_total_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.size}`
         );
-        metrics.push(
-            `host_disk_used_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.used}`
-        );
+        // metrics.push(
+        //     `host_disk_used_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.used}`
+        // );
         metrics.push(
             `host_disk_available_bytes{hostname="${stats.hostname}",filesystem="${disk.filesystem}",mount="${disk.mount}"} ${disk.available}`
         );
