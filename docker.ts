@@ -136,8 +136,8 @@ export async function getDockerMetrics(): Promise<string> {
   // const swarmServiceMetrics = formatSwarmServiceMetrics(services);
 
   return [
-    statsList,
+    statsList.filter(Boolean).join("\n"),
     // swarmNodeMetrics,
     // swarmServiceMetrics
-  ].filter(Boolean).join("\n");
+  ].join("\n");
 }
