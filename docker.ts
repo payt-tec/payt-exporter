@@ -44,16 +44,31 @@ function formatMetrics(name: string, stats: any) {
   const labels = `{container="${name}",hostname="${HOSTNAME}"}`;
   const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
   const systemDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-  const cpuPercent = systemDelta > 0 && cpuDelta > 0
-    ? (cpuDelta / systemDelta) * stats.cpu_stats.online_cpus * 100.0
+  const onlineCpus = stats.cpu_stats.online_cpus || 1;
+  const cpuPercent = (systemDelta > 0 && cpuDelta > 0)
+    ? (cpuDelta / systemDelta) * onlineCpus * 100.0
     : 0;
 
+  const memUsage = stats.memory_stats.usage || 0;
+  const memLimit = stats.memory_stats.limit || 1; // avoid division by zero
+  const memPercent = memLimit > 0 ? (memUsage / memLimit) * 100.0 : 0;
+
+  // Sum network stats over all interfaces
+  let tx_bytes = 0, tx_packets = 0, tx_errors = 0;
+  if (stats.networks) {
+    for (const net of Object.values(stats.networks)) {
+      tx_bytes += net.tx_bytes || 0;
+      tx_packets += net.tx_packets || 0;
+      tx_errors += net.tx_errors || 0;
+    }
+  }
+
   return [
-    `docker_cpu_percentage${labels} ${cpuPercent || 0}`,
-    `docker_memory_percentage${labels} ${stats.memory_stats.usage / stats.memory_stats.limit * 100.0 || 0}`,
-    `docker_network_tx_bytes${labels} ${stats.networks?.eth0?.tx_bytes || 0}`,
-    `docker_network_tx_packets${labels} ${stats.networks?.eth0?.tx_packets || 0}`,
-    `docker_network_tx_errors${labels} ${stats.networks?.eth0?.tx_errors || 0}`
+    `docker_cpu_percentage${labels} ${cpuPercent}`,
+    `docker_memory_percentage${labels} ${memPercent}`,
+    `docker_network_tx_bytes${labels} ${tx_bytes}`,
+    `docker_network_tx_packets${labels} ${tx_packets}`,
+    `docker_network_tx_errors${labels} ${tx_errors}`
   ].join('\n');
 }
 
