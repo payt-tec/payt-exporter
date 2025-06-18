@@ -41,7 +41,7 @@ async function getContainerStats(containerId: string): Promise<any> {
 }
 
 function formatMetrics(name: string, stats: any) {
-  const parsedName = name.split('.')[0];
+  const parsedName = name.includes('.') ? name.split('.')[0] : name;
   const labels = `{container="${parsedName}",hostname="${HOSTNAME}"}`;
   const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
   const systemDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
