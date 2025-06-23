@@ -37,7 +37,8 @@ function parseStubStatus(text: string) {
 }
 
 function formatMetrics(name: string, metrics: any) {
-const labels = `{container="${name}",hostname="${HOSTNAME}"}`;
+  const friendlyName = name.indexOf(".") !== -1 ? name.split(".")[0] : name;
+  const labels = `{container="${friendlyName}",hostname="${HOSTNAME}"}`;
   return [
     `nginx_active_connections${labels} ${metrics.active}`,
     // `nginx_accepted_connections${labels} ${metrics.accepted}`,
