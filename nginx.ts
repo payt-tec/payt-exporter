@@ -1,9 +1,9 @@
-import { listContainersByImage, getContainerIPAddress } from "./docker";
+import { listContainersByImageOrLabel, getContainerIPAddress } from "./docker";
 import { STUB_STATUS_URL, STUB_STATUS_PORT, HOSTNAME } from "./config";
 
 
-export async function getNginxContainers(image: string) {
-  return await listContainersByImage(image);
+export async function getNginxContainers(image: string|null = null, label: string|null = null) {
+  return await listContainersByImageOrLabel(image, label);
 }
 
 export async function getStubStatusFromContainers(containers: { id: string, name: string }[]) {

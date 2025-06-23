@@ -2,6 +2,7 @@ import fs from 'fs';
 
 let config = {
     IMAGE_NAME: 'ghcr.io/payt-tec/laravel-fpm:',
+    LABEL_NAME: 'payt.export.nginx',
     PORT: Bun.env.PORT || 3030,
     LOCAL_PORT: Bun.env.LOCAL_PORT || 3035,
     STUB_STATUS_URL: '/metrics',
@@ -25,7 +26,7 @@ try {
     console.warn('Could not read config.json, using defaults:', error.message);
 }
 
-const { IMAGE_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, MASTER_NODE, BEAT_INTERVAL, MODE, LOCAL_PORT, HOSTNAME } = config;
+const { IMAGE_NAME, LABEL_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, MASTER_NODE, BEAT_INTERVAL, MODE, LOCAL_PORT, HOSTNAME } = config;
 
 export async function updateNodeList() {
     try {
@@ -60,4 +61,4 @@ export async function removeNode(node : string) {
     }
 }
 
-export { IMAGE_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, HOSTNAME, MASTER_NODE, BEAT_INTERVAL, MODE, nodeList, LOCAL_PORT };
+export { IMAGE_NAME, LABEL_NAME, PORT, STUB_STATUS_URL, STUB_STATUS_PORT, TOKEN, HOSTNAME, MASTER_NODE, BEAT_INTERVAL, MODE, nodeList, LOCAL_PORT };
