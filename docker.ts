@@ -11,12 +11,12 @@ async function dockerRequest(path: string): Promise<any> {
   return res.json();
 }
 
-export async function listContainersByImageOrLabel(image: string|null, label: string|null = null) {
+export async function listContainersByImageOrLabel(image: string|null = null, label: string|null = null) {
   const containers = await dockerRequest("/containers/json?all=false");
-  let results = [];
+  let results = containers;
 
   if (image) {
-    results = containers.filter((c: any) => c.Image.includes(image));
+    results = results.filter((c: any) => c.Image.includes(image));
   } 
   
   if (label) {
@@ -113,7 +113,7 @@ function formatSwarmServiceMetrics(services: any[]): string {
 }
 
 export async function getDockerMetrics(): Promise<string> {
-  const containers = await listContainersByImageOrLabel(null);
+  const containers = await listContainersByImageOrLabel();
 
   const statsList = await Promise.all(
     containers.map(async (container) => {
